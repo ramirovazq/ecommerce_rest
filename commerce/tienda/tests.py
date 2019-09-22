@@ -130,3 +130,104 @@ class ObtainTiendaTests(TestCase):
 
         response_json = response.json()
         self.assertEqual(len(response_json[0]['store_schedules']), 2) # se agregaron 2 working windows
+
+
+
+class TiendaCreationVariousTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.tienda_uno_data = {
+            'nombre': 'Tienda de Martha de pasteles Caseros',
+        }
+        response = self.client.post(
+                reverse('tienda-list'),
+                self.tienda_uno_data,
+                format="json"
+        )
+        
+
+        self.tienda_dos_data = {
+            'nombre': 'Tienda de Artesanias Mexicanas',
+        }
+        self.slug_tienda_dos ='tienda-de-artesanias-mexicanas'
+
+        response = self.client.post(
+                reverse('tienda-list'),
+                self.tienda_dos_data,
+                format="json"
+        )
+        response_json = response.json()
+        self.tienda_dos_id = response_json['id']
+
+
+    def test_get_specific_tienda(self):
+        """
+        Obtención simple de una tienda, 
+        POST nombre
+        """
+        response = self.client.get(
+                reverse('tienda-detail', kwargs={'slug':self.slug_tienda_dos}),
+                format="json"
+        )
+        response_json= response.json()
+        self.assertEqual(len(response_json), 4) # 4 elements, from one strore
+
+
+
+class TiendaCreationAddingProductsTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.tienda_uno_data = {
+            'nombre': 'Tienda de Martha de pasteles Caseros',
+        }
+        response = self.client.post(
+                reverse('tienda-list'),
+                self.tienda_uno_data,
+                format="json"
+        )
+
+        response_json = response.json()
+        self.id_tienda = response_json['id']
+        self.slug_tienda = response_json['slug']
+
+        self.product_data = {
+            'nombre': 'Suavizante para la Ropa',
+            'tienda': self.id_tienda,
+            'precio': 159.59
+        }
+        response = self.client.post(
+                reverse('producto-list'),
+                self.product_data,
+                format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.product_data = {
+            'nombre': 'Pastel de Chocolate',
+            'tienda': self.id_tienda,
+            'precio': 399.99
+        }
+        response = self.client.post(
+                reverse('producto-list'),
+                self.product_data,
+                format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+
+
+    def test_get_specific_tienda_products(self):
+        """
+        Obtención de los productos de una tienda, 
+        POST nombre
+        """
+        response = self.client.get(
+                reverse('tienda-productos', kwargs={'slug':self.slug_tienda}),
+                format="json"
+        )
+        response_json= response.json()
+        self.assertEqual(len(response_json), 2) # 2 products from one strore
