@@ -13,6 +13,7 @@ class ProductoViewSet(viewsets.ModelViewSet):
     """
     queryset = Producto.objects.all().order_by('-id')
     serializer_class = ProductoSerializer
+    lookup_field = 'slug'
 
     def __save_slug(self, serializer, producto):
         producto_name  = slugify(producto.nombre)

@@ -130,3 +130,45 @@ class ObtainTiendaTests(TestCase):
 
         response_json = response.json()
         self.assertEqual(len(response_json[0]['store_schedules']), 2) # se agregaron 2 working windows
+
+
+
+class TiendaCreationVariousTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.tienda_uno_data = {
+            'nombre': 'Tienda de Martha de pasteles Caseros',
+        }
+        response = self.client.post(
+                reverse('tienda-list'),
+                self.tienda_uno_data,
+                format="json"
+        )
+        
+
+        self.tienda_dos_data = {
+            'nombre': 'Tienda de Artesanias Mexicanas',
+        }
+        self.slug_tienda_dos ='tienda-de-artesanias-mexicanas'
+
+        response = self.client.post(
+                reverse('tienda-list'),
+                self.tienda_dos_data,
+                format="json"
+        )
+        response_json = response.json()
+        self.tienda_dos_id = response_json['id']
+
+
+    def test_get_specific_tienda(self):
+        """
+        Obtención simple de una tienda, 
+        POST nombre
+        """
+        response = self.client.get(
+                "/v0/tiendas/"+self.slug_tienda_dos+"/",
+                format="json"
+        )
+        response_json= response.json()
+        self.assertEqual(len(response_json), 4) # 4 elements, from one strore
