@@ -19,7 +19,7 @@ class TiendaViewSet(viewsets.ModelViewSet):
         if tienda_name:
             posible_slug = "{}".format(tienda_name)
             if posible_slug: # must be not empty
-                slug = unique_slug(posible_slug)
+                slug = unique_slug(posible_slug, Tienda)
                 tienda.slug = slug
                 tienda.save()
             return tienda
