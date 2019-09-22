@@ -11,6 +11,10 @@ class Tienda(models.Model):
         max_length=150
     )
 
+    def mis_productos(self):
+        from productos.models import Producto
+        return Producto.objects.filter(tienda=self)
+
     def __str__(self):
         return u"{} id, nombre {}.".format(self.id, 
                         self.nombre)
