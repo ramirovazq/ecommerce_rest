@@ -1,0 +1,8 @@
+*__pycache__*
+*.pyc
+*.sw*
+*.env
+*.csv
+db.sqlite3
+obsolete
+media
