@@ -36,7 +36,7 @@ class Dias(models.Model):
 
 
 class TiendaWorkingWindow(models.Model):
-    dias = models.ManyToManyField(
+    dias = models.ManyToManyField( #weekday
         Dias, blank=True
     )
     tienda = models.ForeignKey(
@@ -44,5 +44,5 @@ class TiendaWorkingWindow(models.Model):
         db_index=True,
         on_delete=models.PROTECT
     )
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField() #opens
+    end_time = models.TimeField()   #closes
