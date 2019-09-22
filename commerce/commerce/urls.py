@@ -20,10 +20,11 @@ from django.conf.urls import include
 from rest_framework import routers
 
 from tienda import views as views_tienda
+from productos import views as views_productos
 
 router = routers.DefaultRouter()
 router.register(r'tiendas', views_tienda.TiendaViewSet)
-
+router.register(r'productos', views_productos.ProductoViewSet)
 
 urlpatterns = [
 	path('v0/', include(router.urls)),
