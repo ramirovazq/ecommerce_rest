@@ -31,6 +31,40 @@ class OrdenSpecificSerializer(serializers.Serializer):
         read_only=False
     )
 
+    def validate_tienda(self, value):
+        from tienda.models import Tienda
+        from datetime import datetime as dt
+        from datetime import date as dt_date
+
+        respuesta_validacion = False
+        tienda = Tienda.objects.get(id=value)
+        print("tienda ................ workin windows")
+        print(tienda.horarios_laborales())
+
+        if 'hoy' in self.context.keys(): # im sending artificial today, for testing purposes
+            today = dt.strptime(self.context["hoy"], "%Y-%m-%d")
+            today = today.date()
+        else:
+            today = dt_date.today()
+
+        print("today ......................")
+        print(today)
+
+        if 'fecha_de_entrega_usuario' in self.context.keys(): 
+            fecha_de_entrega_validation = dt.strptime(self.context["fecha_de_entrega_usuario"], "%Y-%m-%d")
+            fecha_de_entrega_validation = fecha_de_entrega_validation.date()
+
+            if 'products' in self.context.keys():
+                products_json = self.context["products"]
+                respuesta_validacion = tienda.validacion_en_horarios_laborales(today, fecha_de_entrega_validation, products_json)
+                
+            if respuesta_validacion:
+                pass
+            else:
+                raise serializers.ValidationError("No se puede en esa fecha")
+
+        return value
+
     def validate_fecha_de_entrega_usuario(self, data):
         from datetime import datetime as dt
         from datetime import date as dt_date
