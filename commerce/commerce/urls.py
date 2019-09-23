@@ -21,12 +21,14 @@ from rest_framework import routers
 
 from tienda import views as views_tienda
 from productos import views as views_productos
+from orden import views as views_orden
 
 router = routers.DefaultRouter()
 router.register(r'tiendas', views_tienda.TiendaViewSet)
 router.register(r'productos', views_productos.ProductoViewSet)
+router.register(r'checkout/orden/', views_orden.OrdenViewSet, basename="checkout")
 
 urlpatterns = [
-	path('v0/', include(router.urls)),
+	path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
