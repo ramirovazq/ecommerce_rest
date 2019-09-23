@@ -95,6 +95,30 @@ class OrdenCreationTests(TestCase):
                 "precio_total": 350
                 }]
 
+    def test_order__past_day__cant_buy(self):
+
+        self.today = datetime.datetime(2019, 9, 29, 0, 0) # monday 29 sept 2019
+        delivery_date = datetime.datetime(2019, 9, 20, 0, 0) # same day        
+
+        order_price = 550
+
+        order_data = {
+            'products': self.products_send_order,
+            'tienda': self.id_tienda,
+            'fecha_de_entrega_usuario': delivery_date.strftime('%Y-%m-%d'),
+            'precio_total_orden': order_price
+        }
+
+        response = self.client.post(
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
+                order_data,
+                format="json"
+        )
+        response_json = response.json() 
+        print(response_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    
     def test_order__zero_tiempo_elaboracion__want_same_day(self):
 
         self.today = datetime.datetime(2019, 9, 24, 0, 0) # tuesday 24 sept 2019
@@ -111,9 +135,8 @@ class OrdenCreationTests(TestCase):
         }
 
         response = self.client.post(
-                reverse('checkout-list'),
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
                 order_data,
                 format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        

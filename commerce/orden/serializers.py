@@ -31,6 +31,30 @@ class OrdenSpecificSerializer(serializers.Serializer):
         read_only=False
     )
 
+    def validate_fecha_de_entrega_usuario(self, data):
+        from datetime import datetime as dt
+        from datetime import date as dt_date
+
+        if len(self.context) > 0: # im sending artificial today, for testing purposes
+            today = dt.strptime(self.context["hoy"], "%Y-%m-%d")
+            today = today.date()
+        else:
+            today = dt_date.today()
+
+        '''
+        print("context .......................")
+        print(self.context)
+        print("data.......................")
+        print(data)
+        print(type(data))
+        print("...............today {}, value {}".format(today, data))
+        '''
+
+        if data < today:
+            raise serializers.ValidationError("Cant buy in past")
+        return data
+
+
     def create(self, validated_data):
         tienda = Tienda.objects.get(id=validated_data.get('tienda'))
         order = Orden.objects.create(
