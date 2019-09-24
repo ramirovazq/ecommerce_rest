@@ -1,3 +1,4 @@
+from datetime import timedelta as t_delta
 import datetime
 
 from django.test import TestCase
@@ -9,8 +10,16 @@ from rest_framework import status
 
 from .models import Tienda, Dias, TiendaWorkingWindow
 
+from datetime import timedelta
 
-def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0):
+def next_weekday(d, weekday):
+    import datetime
+    days_ahead = weekday - d.weekday()
+    if days_ahead <= 0: # Target day already happened this week
+        days_ahead += 7
+    return d + datetime.timedelta(days_ahead)
+
+def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0, fecha=None):
     '''
     devuelve el dia de la semana siguiente en laborar
     '''
@@ -20,11 +29,14 @@ def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0
     # se posiciona en el dia base
     for x in range(dia_que_pide+1):
         indice_final = next(pool)
+    #fecha_en_que_pide es el dia base inicial
     while True:
         if indice_final not in dias_trabajo:
             indice_final = next(pool)
         else:
-            break        
+            break
+    if fecha:
+        fecha = next_weekday(fecha, indice_final)
     pool_dias_trabajo = cycle(dias_trabajo)
     # se posiciona en el dia de trabajo en que se quedó indice_final
     for x in range(len(dias_trabajo)):
@@ -34,7 +46,59 @@ def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0
     # avanzo el numero de dias de elaboracion, sobre la lista de dias_trabajo
     for x in range(dias_elaboracion):
         indice_final = next(pool_dias_trabajo)
-    return indice_final
+        if fecha:
+            fecha = next_weekday(fecha, indice_final)
+
+    if not fecha:
+        return indice_final
+    else:
+        return (indice_final, fecha)
+
+class CircularListWeekTests(TestCase):
+
+    def setUp(self):
+        self.list_weekdays = [3, 4] # jueves, y viernes
+        self.fecha = datetime.datetime(2109,9,24) # solicita el martes 24 sept
+
+    def test_cero_petition(self, dia=2, dias_elaboracion=0):#se pide en miercoles osea 2
+        dia_semana, fecha_propuesta = lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        self.assertEqual(dia_semana, 3)#jueves
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,9,26))#26sep
+
+
+    def test_uno_petition(self, dia=2, dias_elaboracion=1):#se pide en miercoles osea 2
+        dia_semana, fecha_propuesta = lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        self.assertEqual(dia_semana, 4)#viernes
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,9,27))#27sep
+
+    def test_dos_petition(self, dia=2, dias_elaboracion=2):
+        dia_semana, fecha_propuesta =  lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        #self.assertEqual(res, 3)
+        self.assertEqual(dia_semana, 3)#jueves
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,10,3))#3 oct
+
+
+    def test_tres_petition(self, dia=2, dias_elaboracion=3):
+        dia_semana, fecha_propuesta = lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        #self.assertEqual(res, 4)
+        self.assertEqual(dia_semana, 4)#viernes
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,10,4))#4 oct
+
+
+
+    def test_cuatro_petition(self, dia=2, dias_elaboracion=4):
+        dia_semana, fecha_propuesta = lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        #self.assertEqual(res, 3)
+        self.assertEqual(dia_semana, 3)#jueves
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,10,10))#10 oct
+
+    def test_cuatro_petition(self, dia=2, dias_elaboracion=5):
+        dia_semana, fecha_propuesta = lista_circular(self.list_weekdays, dia, dias_elaboracion, self.fecha)
+        #self.assertEqual(res, 3)
+        self.assertEqual(dia_semana, 4)#viernes
+        self.assertEqual(fecha_propuesta, datetime.datetime(2109,10,11))#11 oct
+    
+
 
 
 class CircularListZeroTests(TestCase):
