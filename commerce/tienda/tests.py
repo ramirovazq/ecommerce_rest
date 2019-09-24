@@ -10,6 +10,121 @@ from rest_framework import status
 from .models import Tienda, Dias, TiendaWorkingWindow
 
 
+def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0):
+    '''
+    devuelve el dia de la semana siguiente en laborar
+    '''
+    from itertools import cycle
+    dias_semana = list(range(7)) # [0,1,2,3,4,5,6]
+    pool = cycle(dias_semana)
+    # se posiciona en el dia base
+    for x in range(dia_que_pide+1):
+        indice_final = next(pool)
+    while True:
+        if indice_final not in dias_trabajo:
+            indice_final = next(pool)
+        else:
+            break        
+    pool_dias_trabajo = cycle(dias_trabajo)
+    # se posiciona en el dia de trabajo en que se quedó indice_final
+    for x in range(len(dias_trabajo)):
+        dia_trabajo = next(pool_dias_trabajo)
+        if indice_final == dia_trabajo:
+            break
+    # avanzo el numero de dias de elaboracion, sobre la lista de dias_trabajo
+    for x in range(dias_elaboracion):
+        indice_final = next(pool_dias_trabajo)
+    return indice_final
+
+
+class CircularListZeroTests(TestCase):
+
+    def setUp(self):
+        self.list_weekdays = [0, 1, 3, 4] # monday, tuesday, thursday, friday
+
+    def test_miercoles_petition(self, dia=2, dias_elaboracion=1):
+        res = lista_circular(self.list_weekdays, dia, dias_elaboracion)
+        self.assertEqual(res, 4)
+
+    def test_miercoles_petition_two(self, dia=2, dias_elaboracion=2):
+        res = lista_circular(self.list_weekdays, dia, dias_elaboracion)
+        self.assertEqual(res, 0)
+
+    def test_miercoles_petition_three(self, dia=2, dias_elaboracion=3):
+        res = lista_circular(self.list_weekdays, dia, dias_elaboracion)
+        self.assertEqual(res, 1)
+
+    def test_miercoles_petition_four(self, dia=2, dias_elaboracion=4):
+        res = lista_circular(self.list_weekdays, dia, dias_elaboracion)
+        self.assertEqual(res, 3)
+
+    def test_miercoles_petition_five(self, dia=2, dias_elaboracion=5):
+        res = lista_circular(self.list_weekdays, dia, dias_elaboracion)
+        self.assertEqual(res, 4)
+
+
+class CircularListOneTests(TestCase):
+
+    def setUp(self):
+        self.list_weekdays = [0, 1, 3, 4] # monday, tuesday, thursday, friday
+
+    def test_monday_petition(self, dia=0):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+    def test_tuesday_petition(self, dia=1):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 1)
+
+    def test_wednesday_petition(self, dia=2):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 3)
+
+    def test_thursday_petition(self, dia=3):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 3)
+
+    def test_friday_petition(self, dia=4):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 4)
+
+    def test_saturday_petition(self, dia=5):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+    def test_sunday_petition(self, dia=6):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+
+
+class CircularListTwoTests(TestCase):
+
+    def setUp(self):
+        self.list_weekdays = [0, 1, 3] # lunes, martes, jueves
+
+    def test_miercoles_petition(self, dia=2):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 3)
+
+    def test_jueves_petition(self, dia=3):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 3)
+
+    def test_viernes_petition(self, dia=4):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+    def test_sabado_petition(self, dia=5):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+    def test_domingo_petition(self, dia=6):
+        res = lista_circular(self.list_weekdays, dia)
+        self.assertEqual(res, 0)
+
+
+
 class TiendaCreationTests(TestCase):
 
     def setUp(self):
