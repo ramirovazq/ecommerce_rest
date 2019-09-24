@@ -103,6 +103,13 @@ class OrdenCreationTests(TestCase):
                 "precio_total": 350
                 }]
 
+        self.products_send_order_tiempo_elaboracion_dos = [{
+                'slug': 'superpower-giving-coding-coffee-mug',
+                'cantidad': 2,
+                'precio_unitario': 100,
+                'precio_total': 200
+            }]
+
 
 
     def test_order__past_day__cant_buy(self):
@@ -152,10 +159,34 @@ class OrdenCreationTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-    def test_order__zero_tiempo_elaboracion__want_not_working_day(self):
+    def test_order__zero_dias_tiempo_elaboracion__want_not_working_day(self):
 
         self.today = datetime.datetime(2019, 9, 28, 0, 0) # tuesday 28 sept 2019
         delivery_date = datetime.datetime(2019, 9, 28, 0, 0) # want on saturday, is not a working day
+
+        self.id_tienda
+        order_price = 550
+
+        order_data = {
+            'products': self.products_send_order_tiempo_elaboracion_zero,
+            'tienda': self.id_tienda,
+            'fecha_de_entrega_usuario': delivery_date.strftime('%Y-%m-%d'),
+            'precio_total_orden': order_price
+        }
+
+        response = self.client.post(
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
+                order_data,
+                format="json"
+        )
+        response_json = response.json()
+        print(response_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)        
+
+    def test_order__dos_dias_tiempo_elaboracion__want_not_working_day(self):
+
+        self.today = datetime.datetime(2019, 10, 21, 0, 0) # monday 21 oct 2019
+        delivery_date = datetime.datetime(2019, 10, 23, 0, 0) # wednsday, 23 oct is not a working day
 
         self.id_tienda
         order_price = 550
