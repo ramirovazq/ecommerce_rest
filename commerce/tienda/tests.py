@@ -9,50 +9,8 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 
 from .models import Tienda, Dias, TiendaWorkingWindow
+from .utils import next_weekday, lista_circular
 
-from datetime import timedelta
-
-def next_weekday(d, weekday):
-    import datetime
-    days_ahead = weekday - d.weekday()
-    if days_ahead <= 0: # Target day already happened this week
-        days_ahead += 7
-    return d + datetime.timedelta(days_ahead)
-
-def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0, fecha=None):
-    '''
-    devuelve el dia de la semana siguiente en laborar
-    '''
-    from itertools import cycle
-    dias_semana = list(range(7)) # [0,1,2,3,4,5,6]
-    pool = cycle(dias_semana)
-    # se posiciona en el dia base
-    for x in range(dia_que_pide+1):
-        indice_final = next(pool)
-    #fecha_en_que_pide es el dia base inicial
-    while True:
-        if indice_final not in dias_trabajo:
-            indice_final = next(pool)
-        else:
-            break
-    if fecha:
-        fecha = next_weekday(fecha, indice_final)
-    pool_dias_trabajo = cycle(dias_trabajo)
-    # se posiciona en el dia de trabajo en que se quedó indice_final
-    for x in range(len(dias_trabajo)):
-        dia_trabajo = next(pool_dias_trabajo)
-        if indice_final == dia_trabajo:
-            break
-    # avanzo el numero de dias de elaboracion, sobre la lista de dias_trabajo
-    for x in range(dias_elaboracion):
-        indice_final = next(pool_dias_trabajo)
-        if fecha:
-            fecha = next_weekday(fecha, indice_final)
-
-    if not fecha:
-        return indice_final
-    else:
-        return (indice_final, fecha)
 
 class CircularListWeekTests(TestCase):
 
