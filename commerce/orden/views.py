@@ -10,7 +10,16 @@ from .serializers import *
 
 class OrdenViewSet(viewsets.ViewSet):
     def create(self, request):
-        serializer = OrdenSpecificSerializer(data=request.data)
+        dicc_context = {}
+        today = self.request.query_params.get('today', None)
+        if today: # artificial today
+            dicc_context['hoy'] = today
+        if 'fecha_de_entrega_usuario' in request.data.keys():
+            dicc_context['fecha_de_entrega_usuario'] = request.data.get('fecha_de_entrega_usuario', None)
+        if 'products' in request.data.keys():
+            dicc_context['products'] = request.data.get('products', [])
+
+        serializer = OrdenSpecificSerializer(data=request.data, context=dicc_context)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_200_OK)

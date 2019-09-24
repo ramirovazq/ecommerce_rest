@@ -68,6 +68,7 @@ class OrdenCreationTests(TestCase):
             'nombre': 'Cosmic Machine Learning Healing Drops',
             'tienda': self.id_tienda,
             'precio': 359.59
+            #'tiempo_de_elaboracion': 0
         }
         response = self.client.post(
                 reverse('producto-list'),
@@ -95,12 +96,20 @@ class OrdenCreationTests(TestCase):
                 "precio_total": 350
                 }]
 
-    def test_order__zero_tiempo_elaboracion__want_same_day(self):
+        self.products_send_order_tiempo_elaboracion_zero = [{ 
+                "slug": "cosmic-machine-learning-healing-drops", 
+                "cantidad": 1, 
+                "precio_unitario": 350, 
+                "precio_total": 350
+                }]
 
-        self.today = datetime.datetime(2019, 9, 24, 0, 0) # tuesday 24 sept 2019
-        delivery_date = datetime.datetime(2019, 9, 24, 0, 0) # same day        
 
-        self.id_tienda
+    '''
+    def test_order__past_day__cant_buy(self):
+
+        self.today = datetime.datetime(2019, 9, 29, 0, 0) # monday 29 sept 2019
+        delivery_date = datetime.datetime(2019, 9, 20, 0, 0) # same day        
+
         order_price = 550
 
         order_data = {
@@ -111,9 +120,55 @@ class OrdenCreationTests(TestCase):
         }
 
         response = self.client.post(
-                reverse('checkout-list'),
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
+                order_data,
+                format="json"
+        )
+        response_json = response.json() 
+        print(response_json)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    '''
+    
+    def test_order__zero_tiempo_elaboracion__want_same_day(self):
+
+        self.today = datetime.datetime(2019, 9, 24, 0, 0) # tuesday 24 sept 2019
+        delivery_date = datetime.datetime(2019, 9, 24, 0, 0) # same day        
+
+        self.id_tienda
+        order_price = 550
+
+        order_data = {
+            'products': self.products_send_order_tiempo_elaboracion_zero,
+            'tienda': self.id_tienda,
+            'fecha_de_entrega_usuario': delivery_date.strftime('%Y-%m-%d'),
+            'precio_total_orden': order_price
+        }
+
+        response = self.client.post(
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
                 order_data,
                 format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
+
+    def test_order__zero_tiempo_elaboracion__want_not_working_day(self):
+
+        self.today = datetime.datetime(2019, 9, 28, 0, 0) # tuesday 28 sept 2019
+        delivery_date = datetime.datetime(2019, 9, 28, 0, 0) # want on saturday, is not a working day
+
+        self.id_tienda
+        order_price = 550
+
+        order_data = {
+            'products': self.products_send_order_tiempo_elaboracion_zero,
+            'tienda': self.id_tienda,
+            'fecha_de_entrega_usuario': delivery_date.strftime('%Y-%m-%d'),
+            'precio_total_orden': order_price
+        }
+
+        response = self.client.post(
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
+                order_data,
+                format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)        
