@@ -1,8 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned
 from datetime import timedelta as t_delta
 
-from .models import Tienda
-
 import datetime
 import random
 
