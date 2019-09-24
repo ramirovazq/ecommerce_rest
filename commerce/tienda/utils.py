@@ -14,6 +14,10 @@ def next_weekday(d, weekday):
     return d + datetime.timedelta(days_ahead)
 
 def lista_circular(dias_trabajo=[0, 1, 3, 4], dia_que_pide=5, dias_elaboracion=0, fecha=None):
+    # dias_trabajo, son los dias de la semana en que trabajan 0 lunes; 1 martes; 2 miercoles ...
+    # dia_que_pide, es el dia de la seman en que hace la solicitud
+    # dias_elaboracion, es el numero de dias en que se elabora el producto
+    # fecha. es la fecha en que se hace la solicitud
     '''
     devuelve el dia de la semana siguiente en laborar
     '''
