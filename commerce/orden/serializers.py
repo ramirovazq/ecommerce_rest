@@ -38,8 +38,8 @@ class OrdenSpecificSerializer(serializers.Serializer):
 
         respuesta_validacion = False
         tienda = Tienda.objects.get(id=value)
-        print("tienda ................ workin windows")
-        print(tienda.horarios_laborales())
+        #print("tienda ................ dias semana laborables windows")
+        #print(tienda.dias_semana_horarios_laborales())
 
         if 'hoy' in self.context.keys(): # im sending artificial today, for testing purposes
             today = dt.strptime(self.context["hoy"], "%Y-%m-%d")
@@ -47,8 +47,7 @@ class OrdenSpecificSerializer(serializers.Serializer):
         else:
             today = dt_date.today()
 
-        print("today ......................")
-        print(today)
+        print("today ......................{}".format(today))
 
         if 'fecha_de_entrega_usuario' in self.context.keys(): 
             fecha_de_entrega_validation = dt.strptime(self.context["fecha_de_entrega_usuario"], "%Y-%m-%d")
@@ -56,12 +55,11 @@ class OrdenSpecificSerializer(serializers.Serializer):
 
             if 'products' in self.context.keys():
                 products_json = self.context["products"]
-                respuesta_validacion = tienda.validacion_en_horarios_laborales(today, fecha_de_entrega_validation, products_json)
-                
-            if respuesta_validacion:
+                respuesta_validacion = tienda.validacion_en_horarios_laborales(today, fecha_de_entrega_validation, products_json)                
+            if respuesta_validacion[0]:
                 pass
             else:
-                raise serializers.ValidationError("No se puede en esa fecha")
+                raise serializers.ValidationError("Lo sentimos, pero la tienda no puede entregar los productos en la fecha indicada: {} next_delivery_date {}".format(fecha_de_entrega_validation, respuesta_validacion[1]))
 
         return value
 
