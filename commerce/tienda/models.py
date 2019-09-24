@@ -30,6 +30,8 @@ class Tienda(models.Model):
                 break
         return answer
 
+    def next_posible_day(self, today, fecha_de_entrega_validation):
+        return "recomendacion"
 
     def json_products_list_objects(self, list_of_dicts):
         from productos.models import Producto
@@ -68,6 +70,10 @@ class Tienda(models.Model):
         # productos con tiempo de elaboracion igual a cero, y el dia en que se solicita
         if (producto.tiempo_de_elaboracion == 0):
             answer = self.fecha_solicitada_dentro_de_horarios_laborales(fecha_de_entrega_validation)
+            if not(answer): # si no cae dentro de alguno de los dias laborales
+                recomendation = self.next_posible_day(today, fecha_de_entrega_validation)
+                print("recomendation.............................")
+                print(recomendation)
         return answer
 
     def __str__(self):
