@@ -150,3 +150,25 @@ class OrdenCreationTests(TestCase):
                 format="json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_order__zero_tiempo_elaboracion__want_not_working_day(self):
+
+        self.today = datetime.datetime(2019, 9, 28, 0, 0) # tuesday 28 sept 2019
+        delivery_date = datetime.datetime(2019, 9, 28, 0, 0) # want on saturday, is not a working day
+
+        self.id_tienda
+        order_price = 550
+
+        order_data = {
+            'products': self.products_send_order_tiempo_elaboracion_zero,
+            'tienda': self.id_tienda,
+            'fecha_de_entrega_usuario': delivery_date.strftime('%Y-%m-%d'),
+            'precio_total_orden': order_price
+        }
+
+        response = self.client.post(
+                reverse('checkout-list')+"?today="+self.today.strftime('%Y-%m-%d'),
+                order_data,
+                format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)        
