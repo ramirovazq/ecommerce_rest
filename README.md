@@ -87,9 +87,32 @@ Ahí se puede crear un horario para una tienda.
 Para obtener los datos de una tienda, haz un GET hacia GET http://127.0.0.1:8000/api/tiendas/tienda-de-martha-de-pasteles-caseros/
 
 ```
-       {
-            'nombre': 'Tienda de Martha de pasteles Caseros',
+{
+    "id": 1,
+    "nombre": "Tienda de Martha de pasteles Caseros",
+    "slug": "tienda-de-martha-de-pasteles-caseros",
+    "store_schedules": [
+        {
+            "dias": [
+                {
+                    "dia": "Lunes"
+                },
+                {
+                    "dia": "Martes"
+                },
+                {
+                    "dia": "Jueves"
+                },
+                {
+                    "dia": "Viernes"
+                }
+            ],
+            "start_time": "06:00:00",
+            "end_time": "18:00:00"
         }
+    ]
+}
+
 ```
 
 
