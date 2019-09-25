@@ -51,13 +51,47 @@ Arranca el proyecto
 
 
 
-## Corre las pruebas y observalo funcionando
+## Corre las pruebas 
 
-Arranca el proyecto
+Corre todas las pruebas escritas
 
 ```
 (ecommerce-env) usuario@tu-maquina:~$ python3 manage.py test
 ```
+Cada app del proyecto (orden, productos, tienda) tiene dentro un archivo tests.py, en ese archivo vienen las pruebas de funcionamiento acordes al documento del ejercicio.
+
+
+## Observalo funcionando
+
+Los pasos si se desea ver el proyecto funcionando (levanta el servidor de pruebas)
+
+Para crear una tienda, haz un POST hacia http://127.0.0.1:8000/api/tiendas/
+
+```
+       {
+            'nombre': 'Tienda de Martha de pasteles Caseros',
+        }
+```
+Para adicionar los dias en que trabaja la tienda
+```
+$ ./manage.py carga_inicial_dias
+```
+Crea un super usuario
+```
+$ ./manage.py createsuperuser
+```
+Entra al proyecto desde el admin: http://127.0.0.1:8000/admin/tienda/tiendaworkingwindow/add/
+Ahí se puede crear un horario para una tienda.
+
+
+Para obtener los datos de una tienda, haz un GET hacia GET http://127.0.0.1:8000/api/tiendas/tienda-de-martha-de-pasteles-caseros/
+
+```
+       {
+            'nombre': 'Tienda de Martha de pasteles Caseros',
+        }
+```
+
 
 
 ## License
